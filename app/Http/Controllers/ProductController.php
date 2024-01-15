@@ -6,7 +6,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-
+use Illuminate\Support\Facades\Validator;
 class ProductController extends Controller
 {
     /**
@@ -36,12 +36,27 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|unique:posts|max:255',
+            'quantity' => 'required',
+            'price'=> 'required',
+            'description'=>'required',
+            'user_id'=>'required',
+
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('products.create')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
         Product::create([
             "title"=>$request->get('title'),
             "quantity"=> $request->get('quantity'),
             "price"=>$request->get('proce'),
             "description"=> $request->get('description'),
-            "user_id"=> $request->get('user-id'),
+            "user_id"=> $request->get('user_id'),
             "slug"=> Str::slug($request->get('title')),
             "publish" => true
             ]);
